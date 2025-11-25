@@ -1,4 +1,4 @@
-let nodeEnv = process.env.NODE_ENV || 'default';
+let nodeEnv = process.env.NODE_ENV || 'dev';
 
 try {
   const functions = require('firebase-functions');
@@ -6,7 +6,6 @@ try {
     nodeEnv = functions.config().environment.node_env;
   }
 } catch (_error) {
-  // Estamos en v2 o local - ignoramos
   console.log('functions.config() no disponible en este entorno, usando NODE_ENV');
 }
 
@@ -24,12 +23,20 @@ switch (nodeEnv) {
     environmentFile = '.env.test';
     break;
   default:
-    environmentFile = '.env.test';
+    environmentFile = '.env.dev';
     break;
 }
 
-// Cargar variables desde el archivo correspondiente
-require('dotenv').config({ path: environmentFile });
+console.log('Cargando archivo:', environmentFile);
+
+// Cargar variables con override para sobreescribir .env vacío
+const result = require('dotenv').config({ path: environmentFile, override: true });
+
+if (result.error) {
+  console.error('Error cargando archivo .env:', result.error);
+} else {
+  console.log('Variables cargadas correctamente');
+}
 
 module.exports = {
   NODE_ENV: nodeEnv,

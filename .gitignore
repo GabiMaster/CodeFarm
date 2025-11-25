@@ -1,29 +1,31 @@
-# Expo
-.expo/
-dist/
-npm-debug.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-*.orig.*
-web-build/
-
-# macOS
-.DS_Store
-
-# Node
+# Node modules
 node_modules/
-expo-env.d.ts
 
-# Ignorar SOLO el src del frontend (React Native)
-/src/
+# Credenciales sensibles
+permissions/
+*.json
+!package.json
+!package-lock.json
 
-# NO ignorar functions/ completo, solo cosas específicas
-functions/node_modules/
-functions/.env
-functions/.env.*
-functions/permissions/
-functions/firebase-debug.log
-functions/.firebase/
+# Variables de entorno
+.env
+.env.*
+
+# Pero NO ignorar los .env de ejemplo
+!.env.example
+
+# Firebase cache
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# NO ignorar archivos JS necesarios
+!index.js
+!src/**/*.js

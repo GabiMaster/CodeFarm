@@ -1,25 +1,25 @@
 const admin = require('firebase-admin');
-const env = require('./environment');
+const environment = require('./environment');
 
-// Inicializar Firebase Admin SDK (Singleton)
 if (!admin.apps.length) {
-  // Cargar credenciales directamente con ruta relativa
-  const serviceAccount = require('../../permissions/codefarm-22225-firebase-adminsdk-fbsvc-fe7f645813.json');
+  const serviceAccount = require(`../../${environment.CREDENTIALS_PATH_FILE_NAME}`);
   
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: env.RTDB_FIREBASE_DATABASE_URL,
-    storageBucket: env.DB_BUCKET_NAME
+    databaseURL: environment.RTDB_FIREBASE_DATABASE_URL,
+    storageBucket: environment.DB_BUCKET_NAME
   });
 }
 
-const db = admin.database();
-const auth = admin.auth();
-const storage = admin.storage();
+// Conectar a emuladores en desarrollo
+if (environment.NODE_ENV === 'dev' && process.env.FUNCTIONS_EMULATOR) {
+  process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099';
+  process.env.FIREBASE_DATABASE_EMULATOR_HOST = '127.0.0.1:9000';
+  console.log('Conectado a emuladores locales');
+}
 
-module.exports = {
-  admin,
-  db,
-  auth,
-  storage
-};
+const auth = admin.auth();
+const db = admin.database();
+const bucket = admin.storage().bucket();
+
+module.exports = { auth, db, bucket, admin };
