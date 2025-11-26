@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Importar services
 const executeCodeService = require('../services/executions/execute-code.service');
-const getExecutionService = require('../services/executions/get-execution.service');
+const getExecutionService = require('../services/executions/get-executions.service');
 const getExecutionsByProjectService = require('../services/executions/get-executions-by-project.service');
 
 // POST /executions - Ejecutar código

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Importar services
-const createVersionService = require('../services/versions/create-version.service');
+const createVersionService = require('../services/versions/create-versions.service');
 const getVersionsByFileService = require('../services/versions/get-versions-by-file.service');
 const restoreVersionService = require('../services/versions/restore-version.service');
 

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const addCollaboratorService = require('../services/collaborators/add-collaborator.service');
 const getCollaboratorsByProjectService = require('../services/collaborators/get-collaborators-by-project.service');
-const updateCollaboratorRoleService = require('../services/collaborators/update-collaborator-role.service');
+const updateCollaboratorRoleService = require('../services/collaborators/update-collaborators-role.service');
 const deleteCollaboratorService = require('../services/collaborators/delete-collaborator.service');
 const getUserCollaborationsService = require('../services/collaborators/get-user-collaborations.service');
 
