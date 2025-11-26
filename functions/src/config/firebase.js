@@ -11,13 +11,6 @@ if (!admin.apps.length) {
   });
 }
 
-// Conectar a emuladores en desarrollo
-if (environment.NODE_ENV === 'dev' && process.env.FUNCTIONS_EMULATOR) {
-  process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099';
-  process.env.FIREBASE_DATABASE_EMULATOR_HOST = '127.0.0.1:9000';
-  console.log('Conectado a emuladores locales');
-}
-
 const auth = admin.auth();
 const db = admin.database();
 const bucket = admin.storage().bucket();
