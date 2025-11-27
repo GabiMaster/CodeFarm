@@ -38,3 +38,9 @@ public/
 expo-env.d.ts
 # @end expo-cli
 !public/api-demo.js
+
+# Firebase rules (gestionadas desde Console)
+database.rules.json
+
+# Expo devices (configuración local)
+.expo/devices.json
