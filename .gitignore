@@ -2,10 +2,10 @@
 node_modules/
 
 # Credenciales sensibles
-permissions/
-*.json
+permissions/*.json
 !package.json
 !package-lock.json
+!firebase.json
 
 # Variables de entorno
 .env
@@ -26,6 +26,9 @@ firebase-debug.*.log
 .DS_Store
 Thumbs.db
 
+# Directorios de build/distribución
+public/
+
 # NO ignorar archivos JS necesarios
 !index.js
 !src/**/*.js
@@ -34,3 +37,4 @@ Thumbs.db
 
 expo-env.d.ts
 # @end expo-cli
+!public/api-demo.js
