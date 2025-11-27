@@ -1,10 +1,16 @@
-import { apiService } from './api.service';
 import { ENDPOINTS } from '../config/api.config';
+import { apiService } from './api.service';
 
 interface UpdateUserData {
   displayName?: string;
   username?: string;
   email?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  image?: string;
+  bio?: string;
+  avatar?: string;
 }
 
 interface User {
@@ -12,6 +18,10 @@ interface User {
   displayName: string;
   username: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  image?: string;
   createdAt: string;
 }
 

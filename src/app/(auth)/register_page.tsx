@@ -3,7 +3,6 @@ import CustomAlert from '@/src/components/atoms/CustomAlert';
 import { COLOR } from '@/src/constants/colors';
 import { Icon } from '@/src/constants/icons';
 import { useAuth } from '@/src/hooks/useAuth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Modal, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -23,7 +22,7 @@ const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
-  const { signIn } = useAuth();
+  const { register } = useAuth();
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -37,46 +36,66 @@ const RegisterPage = () => {
     setShowTermsModal(false);
   };
 
-  // Lógica de registro
-const handleRegister = async () => {
-  if (!displayName || !username || !email || !password || !confirmPassword) {
-    setAlert({
-      visible: true,
-      type: 'error',
-      message: 'Por favor completa todos los campos.',
-    });
-    return;
-  }
+  const handleRegister = async () => {
+    if (!nombre || !apellido || !email || !password || !confirmPassword) {
+      setAlert({
+        visible: true,
+        type: 'error',
+        message: 'Por favor completa todos los campos.',
+      });
+      return;
+    }
 
-  if (password !== confirmPassword) {
-    setAlert({
-      visible: true,
-      type: 'error',
-      message: 'Las contraseñas no coinciden.',
-    });
-    return;
-  }
+    if (password !== confirmPassword) {
+      setAlert({
+        visible: true,
+        type: 'error',
+        message: 'Las contraseñas no coinciden.',
+      });
+      return;
+    }
 
-  try {
-    await register({ displayName, username, email, password });
-    setAlert({
-      visible: true,
-      type: 'success',
-      message: '¡Registro exitoso!',
-    });
-    
-    setTimeout(() => {
-      setAlert((a) => ({ ...a, visible: false }));
-      router.replace('/(tabs)');
-    }, 1200);
-  } catch (error: any) {
-    setAlert({
-      visible: true,
-      type: 'error',
-      message: error.message || 'Error al registrar usuario',
-    });
-  }
-};
+    if (!acceptTerms) {
+      setAlert({
+        visible: true,
+        type: 'error',
+        message: 'Debes aceptar los términos y condiciones.',
+      });
+      return;
+    }
+
+    try {
+      const displayName = `${nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase()} ${apellido.charAt(0).toUpperCase() + apellido.slice(1).toLowerCase()}`;
+      const username = `${nombre.toLowerCase().replace(/\s+/g, '')}${apellido.toLowerCase().replace(/\s+/g, '')}`;
+      
+      await register({ 
+        displayName, 
+        username, 
+        email, 
+        password, 
+        phoneNumber: telefono,
+        firstName: nombre.charAt(0).toUpperCase() + nombre.slice(1).toLowerCase(),
+        lastName: apellido.charAt(0).toUpperCase() + apellido.slice(1).toLowerCase()
+      });
+      
+      setAlert({
+        visible: true,
+        type: 'success',
+        message: '¡Registro exitoso!',
+      });
+      
+      setTimeout(() => {
+        setAlert((a) => ({ ...a, visible: false }));
+        router.replace('/(tabs)');
+      }, 1200);
+    } catch (error: any) {
+      setAlert({
+        visible: true,
+        type: 'error',
+        message: error.message || 'Error al registrar usuario',
+      });
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -342,7 +361,6 @@ const styles = StyleSheet.create({
     color: COLOR.primary,
     fontWeight: 'bold',
   },
-  // Modal styles
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',

@@ -53,6 +53,10 @@ const loginService = async (data) => {
       email: value.email,
       displayName: userData.displayName,
       username: userData.username,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      phoneNumber: userData.phoneNumber,
+      image: userData.image,
       token: idToken
     };
 

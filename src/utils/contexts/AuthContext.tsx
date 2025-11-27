@@ -8,6 +8,10 @@ interface User {
   email: string;
   displayName: string;
   username: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  image?: string;
 }
 
 type AuthContextType = {
@@ -15,11 +19,14 @@ type AuthContextType = {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateUser: (data: Partial<User>) => Promise<void>;
-  register: (data: {
+    register: (data: {
     displayName: string;
     username: string;
     email: string;
     password: string;
+    phoneNumber?: string;
+    firstName: string;
+    lastName: string;
   }) => Promise<void>;
   isLoading: boolean;
 };
@@ -52,21 +59,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const register = async (data: {
+    const register = async (data: {
     displayName: string;
     username: string;
     email: string;
     password: string;
+    phoneNumber?: string;
+    firstName: string;
+    lastName: string;
   }) => {
     try {
       setIsLoading(true);
-      const userData = await authService.register(data);
-      setUser({
-        uid: userData.uid,
-        email: userData.email,
-        displayName: userData.displayName,
-        username: userData.username,
-      });
+      const response = await authService.register(data);
+      
+      const userData = {
+        uid: response.uid,
+        email: response.email,
+        displayName: response.displayName,
+        username: response.username,
+        firstName: response.firstName,
+        lastName: response.lastName,
+        phoneNumber: response.phoneNumber,
+      };
+      
+      setUser(userData);
+      await AsyncStorage.setItem('userData', JSON.stringify(userData));
+      
+      if (response.token) {
+        await AsyncStorage.setItem('authToken', response.token);
+      }
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || 'Error al registrar usuario';
       throw new Error(errorMessage);
@@ -84,19 +105,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       email: userData.email,
       displayName: userData.displayName,
       username: userData.username,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      phoneNumber: userData.phoneNumber,
+      image: userData.image,
     });
   } catch (error: any) {
-    // Propagar el error original si tiene response
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
     
-    // Si es un error de axios sin response, podría ser problema de red
     if (error.message?.includes('Network')) {
       throw new Error('Error de conexión. Verificá tu internet.');
     }
     
-    // Error genérico
     throw new Error(error.message || 'Credenciales incorrectas');
   } finally {
     setIsLoading(false);
@@ -123,6 +145,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         email: updatedUserData.email,
         displayName: updatedUserData.displayName,
         username: updatedUserData.username,
+        firstName: updatedUserData.firstName,
+        lastName: updatedUserData.lastName,
+        phoneNumber: updatedUserData.phoneNumber,
+        image: updatedUserData.image,
       };
       
       setUser(updatedUser);

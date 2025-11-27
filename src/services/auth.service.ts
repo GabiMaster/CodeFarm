@@ -1,12 +1,15 @@
-import { apiService } from './api.service';
-import { ENDPOINTS } from '../config/api.config';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ENDPOINTS } from '../config/api.config';
+import { apiService } from './api.service';
 
 interface RegisterData {
   displayName: string;
   username: string;
   email: string;
   password: string;
+  phoneNumber?: string;
+  firstName: string;
+  lastName: string;
 }
 
 interface LoginData {
@@ -26,6 +29,10 @@ interface UserPayload {
   email: string;
   displayName: string;
   username: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  image?: string;
   createdAt?: string;
   token?: string;
 }

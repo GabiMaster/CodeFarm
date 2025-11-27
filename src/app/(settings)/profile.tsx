@@ -30,7 +30,7 @@ const Profile = () => {
             <Icon name="account-circle-outline" size={moderateScale(60)} color={COLOR.icon} />
           )}
         </View>
-        <Text style={getStyles(COLOR).username}>{user?.nombre && user?.apellido ? user.nombre + ' ' + user.apellido : user?.nombre || user?.username || 'Usuario'}</Text>
+        <Text style={getStyles(COLOR).username}>{user?.displayName || user?.username || 'Usuario'}</Text>
         <Text style={[getStyles(COLOR).email, theme === 'light' && { color: '#000' }]}>{user?.email || 'correo@ejemplo.com'}</Text>
       </LinearGradient>
       <ScrollView contentContainerStyle={{ paddingBottom: verticalScale(32) }}>
@@ -45,7 +45,7 @@ const Profile = () => {
           </View>
           <View style={getStyles(COLOR).infoPreview}>
             <Text style={getStyles(COLOR).infoLabel}>Nombre completo:</Text>
-            <Text style={getStyles(COLOR).infoValue}>{user?.nombre && user?.apellido ? user.nombre + ' ' + user.apellido : user?.nombre || user?.username || 'Nombre'}</Text>
+            <Text style={getStyles(COLOR).infoValue}>{user?.displayName || user?.username || 'Nombre'}</Text>
           </View>
           <View style={getStyles(COLOR).infoPreview}>
             <Text style={getStyles(COLOR).infoLabel}>Correo:</Text>
@@ -53,7 +53,7 @@ const Profile = () => {
           </View>
           <View style={getStyles(COLOR).infoPreview}>
             <Text style={getStyles(COLOR).infoLabel}>Teléfono:</Text>
-            <Text style={getStyles(COLOR).infoValue}>{user?.telefono || '-'}</Text>
+            <Text style={getStyles(COLOR).infoValue}>{user?.phoneNumber || '-'}</Text>
           </View>
         </TouchableOpacity>
         {/* Notificaciones */}
