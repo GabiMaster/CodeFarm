@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middlewares/auth.middleware');
 const addCollaboratorService = require('../services/collaborators/add-collaborator.service');
 const getCollaboratorsByProjectService = require('../services/collaborators/get-collaborators-by-project.service');
 const updateCollaboratorRoleService = require('../services/collaborators/update-collaborators-role.service');
 const deleteCollaboratorService = require('../services/collaborators/delete-collaborator.service');
 const getUserCollaborationsService = require('../services/collaborators/get-user-collaborations.service');
+
+router.use(authMiddleware);
 
 // POST /collaborators - Agregar colaborador
 router.post('/', async (req, res) => {

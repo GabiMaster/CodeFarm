@@ -20,7 +20,16 @@ const registerSchema = Joi.object({
     'string.alphanum': 'El username solo puede contener letras y números',
     'string.min': 'El username debe tener al menos 3 caracteres',
     'any.required': 'El username es obligatorio'
-  })
+  }),
+  firstName: Joi.string().min(2).required().messages({
+    'string.min': 'El nombre debe tener al menos 2 caracteres',
+    'any.required': 'El nombre es obligatorio'
+  }),
+  lastName: Joi.string().min(2).required().messages({
+    'string.min': 'El apellido debe tener al menos 2 caracteres',
+    'any.required': 'El apellido es obligatorio'
+  }),
+  phoneNumber: Joi.string().allow('', null).optional()
 });
 
 const registerService = async (data) => {
@@ -53,19 +62,30 @@ const registerService = async (data) => {
   const userRecord = await authRepository.createUser(value);
 
   // 5. Guardar información adicional en Realtime Database
-  await authRepository.saveUserData(userRecord.uid, {
+    const userData = {
     email: value.email,
     displayName: value.displayName,
     username: value.username,
+    firstName: value.firstName,
+    lastName: value.lastName,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
-  });
+  };
 
-  return {
+  if (value.phoneNumber) {
+    userData.phoneNumber = value.phoneNumber;
+  }
+
+  await authRepository.saveUserData(userRecord.uid, userData);
+
+    return {
     uid: userRecord.uid,
     email: userRecord.email,
     displayName: value.displayName,
-    username: value.username
+    username: value.username,
+    firstName: value.firstName,
+    lastName: value.lastName,
+    phoneNumber: value.phoneNumber
   };
 };
 

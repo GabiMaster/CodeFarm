@@ -3,7 +3,6 @@ import CustomAlert from '@/src/components/atoms/CustomAlert';
 import { COLOR } from '@/src/constants/colors';
 import { Icon } from '@/src/constants/icons';
 import { useAuth } from '@/src/hooks/useAuth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -17,26 +16,37 @@ const LoginPage = () => {
   const [alert, setAlert] = useState<{visible: boolean, type: 'success' | 'error', message: string}>({visible: false, type: 'success', message: ''});
 
   // Lógica de login
-  const handleLogin = async () => {
-    if (!email || !password) {
-      setAlert({visible: true, type: 'error', message: 'Por favor completa todos los campos.'});
-      return;
-    }
-    const usersRaw = await AsyncStorage.getItem('users');
-    const users = usersRaw ? JSON.parse(usersRaw) : [];
-    const user = users.find((u: any) => u.email === email && u.password === password);
-    if (!user) {
-      setAlert({visible: true, type: 'error', message: 'Correo o contraseña incorrectos.'});
-      return;
-    }
-    await AsyncStorage.setItem('user', JSON.stringify(user));
-    await signIn(JSON.stringify(user));
-    setAlert({visible: true, type: 'success', message: '¡Bienvenido!'});
+const handleLogin = async () => {
+  if (!email || !password) {
+    setAlert({
+      visible: true,
+      type: 'error',
+      message: 'Por favor completa todos los campos.',
+    });
+    return;
+  }
+
+  try {
+    await signIn(email, password);
+    
+    setAlert({
+      visible: true,
+      type: 'success',
+      message: '¡Bienvenido!',
+    });
+    
     setTimeout(() => {
-      setAlert(a => ({...a, visible: false}));
+      setAlert((a) => ({ ...a, visible: false }));
       router.replace('/(tabs)');
     }, 1200);
-  };
+  } catch (error: any) {
+    setAlert({
+      visible: true,
+      type: 'error',
+      message: error.message || 'Error al iniciar sesión',
+    });
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>

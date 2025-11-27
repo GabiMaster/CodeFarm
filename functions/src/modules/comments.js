@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middlewares/auth.middleware');
 
 // Importar services
 const createCommentService = require('../services/comments/create-comment.service');
 const getCommentsByFileService = require('../services/comments/get-comments-by-file.service');
 const updateCommentService = require('../services/comments/update-comment.service');
 const deleteCommentService = require('../services/comments/delete-comment.service');
+
+router.use(authMiddleware);
 
 // POST /comments - Crear comentario
 router.post('/', async (req, res) => {

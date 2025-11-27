@@ -126,7 +126,7 @@ const Home = () => {
           </View>
           <View style={[getStyles(COLOR).headerTextContainer, { marginLeft: 8 }]}>
             <Text style={[getStyles(COLOR).welcomeText, { marginBottom: 2 }]}>Bienvenido</Text>
-            <Text style={getStyles(COLOR).usernameText}>{user?.nombre && user?.apellido ? user.nombre + ' ' + user.apellido : user?.nombre || user?.username || 'Usuario'}</Text>
+            <Text style={getStyles(COLOR).usernameText}>{user?.firstName || user?.displayName?.split(' ')[0] || user?.username || 'Usuario'}</Text>
           </View>
         </View>
       </View>

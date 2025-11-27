@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middlewares/auth.middleware');
 const getUserService = require('../services/users/get-user.service');
 const updateUserService = require('../services/users/update-user.service');
 const { sendSuccess, sendError } = require('../utils/response');
 const httpStatus = require('../utils/httpStatusCode');
+
+router.use(authMiddleware);
 
 // GET /users/:userId
 router.get('/:userId', async (req, res) => {

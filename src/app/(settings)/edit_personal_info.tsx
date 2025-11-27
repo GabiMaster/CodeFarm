@@ -1,5 +1,4 @@
 import CustomAlert from '@/src/components/atoms/CustomAlert';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
@@ -13,11 +12,11 @@ import { useTheme } from '../../utils/contexts/ThemeContext';
 const EditPersonalInfo = () => {
   const { user, updateUser } = useAuth();
   const router = useRouter();
-  const [nombre, setNombre] = useState(user?.nombre || user?.username || '');
-  const [apellido, setApellido] = useState(user?.apellido || '');
+  const [nombre, setNombre] = useState(user?.firstName || '');
+  const [apellido, setApellido] = useState(user?.lastName || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [telefono, setTelefono] = useState(user?.telefono || '');
-  const [image, setImage] = useState(user?.image || null);
+  const [telefono, setTelefono] = useState(user?.phoneNumber || '');
+  const [image, setImage] = useState<string | undefined>(user?.image || undefined);
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<{visible: boolean, type: 'success' | 'error', message: string}>({visible: false, type: 'success', message: ''});
   const { theme } = useTheme();
@@ -76,16 +75,14 @@ const EditPersonalInfo = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
-      await updateUser({ nombre, apellido, email, telefono, username: nombre, image });
-      // Guarda la imagen en el usuario persistente
-      const usersRaw = await AsyncStorage.getItem('users');
-      let users = usersRaw ? JSON.parse(usersRaw) : [];
-      const idx = users.findIndex((u: any) => u.email === user?.email);
-      if (idx !== -1) {
-        users[idx] = { ...users[idx], nombre, apellido, email, telefono, username: nombre, image };
-        await AsyncStorage.setItem('users', JSON.stringify(users));
-      }
-      await AsyncStorage.setItem('user', JSON.stringify({ ...user, nombre, apellido, email, telefono, username: nombre, image }));
+      await updateUser({ 
+        firstName: nombre, 
+        lastName: apellido, 
+        displayName: `${nombre} ${apellido}`,
+        email, 
+        phoneNumber: telefono, 
+        image: image || undefined 
+      });
       setAlert({
         visible: true,
         type: 'success',

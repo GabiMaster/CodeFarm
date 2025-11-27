@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middlewares/auth.middleware');
 const getNotificationsService = require('../services/notifications/get-notifications.service');
 const { sendSuccess, sendError } = require('../utils/response');
 const httpStatus = require('../utils/httpStatusCode');
+
+router.use(authMiddleware);
 
 // GET /notifications/:userId
 router.get('/:userId', async (req, res) => {
