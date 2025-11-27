@@ -13,7 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const logPre = document.getElementById('log');
     const outgoingPre = document.getElementById('outgoing');
     const copyPayloadBtn = document.getElementById('copyPayload');
+    const responseTokenWrapper = document.getElementById('responseTokenWrapper');
+    const responseTokenPreview = document.getElementById('responseTokenPreview');
+    const copyResponseTokenBtn = document.getElementById('copyResponseToken');
     const endpoints = document.querySelectorAll('.endpoint');
+    let lastResponseToken = '';
 
     const log = (message) => {
         const timestamp = new Date().toLocaleTimeString();
@@ -49,23 +53,88 @@ document.addEventListener('DOMContentLoaded', () => {
         log('Token de autorización eliminado de localStorage y del campo.');
         alert('Token limpiado.');
     });
-
     // Plantillas de body para cada endpoint
     const defaultBodies = {
-        'POST /auth/register': { email: 'user@example.com', password: 'your-password', displayName: 'New User' },
-        'POST /auth/login': { email: 'user@example.com', password: 'your-password' },
-        'POST /auth/change-password': { oldPassword: 'current-password', newPassword: 'new-strong-password' },
-        'POST /projects': { name: 'My New Project', language: 'python' },
-        'PUT /projects/{projectId}': { name: 'Updated Project Name', language: 'javascript' },
-        'POST /files': { projectId: 'your-project-id', name: 'main.py', content: "print('Hello, World!')" },
-        'PUT /files/{fileId}': { name: 'new-filename.js', content: "console.log('Hello from updated file!');" },
-        'POST /executions': { projectId: 'your-project-id', fileId: 'your-file-id' },
-        'POST /projects/{projectId}/collaborators': { userId: 'collaborator-user-id', role: 'editor' },
-        'POST /comments': { fileId: 'your-file-id', content: 'This is a great comment!', line: 10 },
-        'PUT /comments/{commentId}': { content: 'This is an updated comment!' },
-        'PUT /users/{userId}': { displayName: 'Updated User Name', profilePictureUrl: 'https://example.com/new-pic.png' },
-        'POST /notifications/{notificationId}/read': {},
-        'POST /files/{fileId}/versions/{versionId}/revert': {}
+        'POST /auth/register': {
+            email: 'user@example.com',
+            password: 'your-password',
+            displayName: 'New User',
+            username: 'newuser'
+        },
+        'POST /auth/login': {
+            email: 'user@example.com',
+            password: 'your-password'
+        },
+        'POST /auth/change-password': {
+            uid: 'firebase-user-uid',
+            currentPassword: 'current-password',
+            newPassword: 'new-strong-password',
+            confirmPassword: 'new-strong-password'
+        },
+        'POST /projects': {
+            userId: 'owner-user-id',
+            name: 'My New Project',
+            description: 'Descripción corta del proyecto',
+            language: 'javascript',
+            template: 'blank'
+        },
+        'PUT /projects/{projectId}': {
+            name: 'Updated Project Name',
+            description: 'Descripción actualizada',
+            language: 'python'
+        },
+        'POST /files': {
+            projectId: 'your-project-id',
+            name: 'main.py',
+            content: "print('Hello, World!')",
+            path: '/src/main.py',
+            type: 'file',
+            extension: 'py'
+        },
+        'PUT /files/{fileId}': {
+            name: 'new-filename.js',
+            content: "console.log('Hello from updated file!');",
+            path: '/src/new-filename.js',
+            extension: 'js'
+        },
+        'POST /executions': {
+            projectId: 'your-project-id',
+            fileId: 'your-file-id',
+            code: "console.log('Ejecutando código...');",
+            language: 'javascript',
+            userId: 'runner-user-id'
+        },
+        'POST /collaborators': {
+            projectId: 'project-id',
+            userId: 'collaborator-user-id',
+            role: 'editor',
+            invitedBy: 'owner-user-id'
+        },
+        'PUT /collaborators/{collaboratorId}': {
+            role: 'viewer'
+        },
+        'POST /comments': {
+            fileId: 'your-file-id',
+            userId: 'commenter-user-id',
+            content: 'This is a great comment!',
+            lineNumber: 10
+        },
+        'PUT /comments/{commentId}': {
+            content: 'This is an updated comment!'
+        },
+        'PUT /users/{userId}': {
+            displayName: 'Updated User Name',
+            username: 'updated-username',
+            bio: 'Sobre mí...',
+            avatar: 'https://example.com/new-avatar.png'
+        },
+        'POST /versions': {
+            fileId: 'your-file-id',
+            userId: 'author-user-id',
+            content: "console.log('Snapshot');",
+            message: 'Versión inicial'
+        },
+        'POST /versions/{versionId}/restore': {}
     };
 
     const getFormattedJson = (data) => {
@@ -168,6 +237,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return { url, options: requestOptions };
     };
 
+    const updateResponseTokenPreview = (token) => {
+        if (token) {
+            lastResponseToken = token;
+            const preview = token.length > 10 ? `${token.slice(0, 10)}...` : token;
+            responseTokenPreview.textContent = preview;
+            responseTokenPreview.title = token;
+            responseTokenWrapper.classList.add('show');
+            copyResponseTokenBtn.disabled = false;
+        } else {
+            lastResponseToken = '';
+            responseTokenPreview.textContent = 'N/A';
+            responseTokenPreview.title = '';
+            responseTokenWrapper.classList.remove('show');
+            copyResponseTokenBtn.disabled = true;
+        }
+    };
+
+    updateResponseTokenPreview('');
+
+    copyResponseTokenBtn.addEventListener('click', () => {
+        if (!lastResponseToken) return;
+
+        navigator.clipboard.writeText(lastResponseToken).then(() => {
+            log('Token de respuesta copiado al portapapeles.');
+            alert('Token copiado al portapapeles.');
+        }).catch(err => {
+            log(`Error al copiar token: ${err.message}`);
+            alert('No se pudo copiar el token.');
+        });
+    });
+
     // Previsualizar la petición
     previewBtn.addEventListener('click', () => {
         log('Previsualizando la petición...');
@@ -209,10 +309,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             responsePre.textContent = JSON.stringify(formattedResponse, null, 2);
             log(`Respuesta recibida: ${status}. Duración: ${duration}ms.`);
+            const tokenFromResponse =
+                responseData?.token ||
+                responseData?.payload?.token ||
+                responseData?.body?.token ||
+                responseData?.data?.token;
+            updateResponseTokenPreview(tokenFromResponse);
 
         } catch (error) {
             responsePre.textContent = `Error en la petición:\n\n${error.message}\n\nRevisa la consola del navegador y la URL base de la API.`;
             log(`Error en fetch: ${error.message}`);
+            updateResponseTokenPreview('');
         }
     });
 
@@ -234,28 +341,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Copiar token al hacer clic en la respuesta
     responsePre.addEventListener('click', () => {
-        try {
-            const responseText = responsePre.textContent;
-            const responseJson = JSON.parse(responseText);
-
-            // Busca el token en el cuerpo de la respuesta
-            if (responseJson && responseJson.body && responseJson.body.token) {
-                const token = responseJson.body.token;
-                // CORRECCIÓN: Autocompletar el campo de autorización y guardarlo.
-                const bearerToken = `Bearer ${token}`;
-                authTokenInput.value = bearerToken;
-                localStorage.setItem('authToken', bearerToken);
-                log('Token autocompletado y guardado en localStorage.');
-
-                navigator.clipboard.writeText(bearerToken).then(() => {
-                    log('Token copiado al portapapeles.');
-                    alert('¡Token copiado al portapapeles!');
-                }).catch(err => {
-                    log(`Error al copiar el token: ${err}`);
-                });
+        let token = lastResponseToken;
+        if (!token) {
+            try {
+                const responseText = responsePre.textContent;
+                const responseJson = JSON.parse(responseText);
+                token =
+                    responseJson?.body?.token ||
+                    responseJson?.body?.payload?.token ||
+                    responseJson?.body?.data?.token ||
+                    null;
+            } catch (_e) {
+                token = null;
             }
-        } catch (_e) {
-            // No hacer nada si el contenido no es un JSON válido o no hay token.
+        }
+
+        if (token) {
+            const bearerToken = `Bearer ${token}`;
+            authTokenInput.value = bearerToken;
+            localStorage.setItem('authToken', bearerToken);
+            log('Token autocompletado y guardado en localStorage.');
+
+            navigator.clipboard.writeText(bearerToken).then(() => {
+                log('Token copiado al portapapeles.');
+                alert('¡Token copiado al portapapeles!');
+            }).catch(err => {
+                log(`Error al copiar el token: ${err}`);
+            });
         }
     });
 

@@ -266,12 +266,45 @@
             font-size: 0.875rem;
             border: 1px solid var(--border-color);
             flex: 1;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
         
         .btn-group {
             display: flex;
             gap: 0.5rem;
             align-items: center;
+        }
+
+        .token-response {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(59, 130, 246, 0.08);
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 0.85rem;
+        }
+
+        .token-response.show {
+            display: flex;
+        }
+
+        .token-preview {
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+            max-width: 160px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-compact {
+            padding: 0.35rem 0.75rem;
+            font-size: 0.75rem;
         }
 
         @media (max-width: 1200px) {
@@ -347,10 +380,10 @@
             <div class="sidebar-group">
                 <h3>Proyectos</h3>
                 <div class="endpoint" data-path="/projects" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/projects</div></div>
-                <div class="endpoint" data-path="/projects/user/{userId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/projects/user/:userId</div></div>
-                <div class="endpoint" data-path="/projects/{projectId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/projects/:projectId</div></div>
-                <div class="endpoint" data-path="/projects/{projectId}" data-method="PUT"><div class="method PUT">PUT</div><div class="ep-path">/projects/:projectId</div></div>
-                <div class="endpoint" data-path="/projects/{projectId}" data-method="DELETE"><div class="method DELETE">DELETE</div><div class="ep-path">/projects/:projectId</div></div>
+                <div class="endpoint" data-path="/projects/user/{userId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/projects/user/{userId}</div></div>
+                <div class="endpoint" data-path="/projects/{projectId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/projects/{projectId}</div></div>
+                <div class="endpoint" data-path="/projects/{projectId}" data-method="PUT"><div class="method PUT">PUT</div><div class="ep-path">/projects/{projectId}</div></div>
+                <div class="endpoint" data-path="/projects/{projectId}" data-method="DELETE"><div class="method DELETE">DELETE</div><div class="ep-path">/projects/{projectId}</div></div>
             </div>
             <div class="sidebar-group">
                 <h3>Archivos</h3>
@@ -367,9 +400,11 @@
             </div>
             <div class="sidebar-group">
                 <h3>Colaboradores</h3>
-                <div class="endpoint" data-path="/projects/{projectId}/collaborators" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/projects/:id/collaborators</div></div>
-                <div class="endpoint" data-path="/projects/{projectId}/collaborators" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/projects/:id/collaborators</div></div>
-                <div class="endpoint" data-path="/projects/{projectId}/collaborators/{userId}" data-method="DELETE"><div class="method DELETE">DELETE</div><div class="ep-path">/projects/:id/collaborators/:id</div></div>
+                <div class="endpoint" data-path="/collaborators" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/collaborators</div></div>
+                <div class="endpoint" data-path="/collaborators/project/{projectId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/collaborators/project/{projectId}</div></div>
+                <div class="endpoint" data-path="/collaborators/{collaboratorId}" data-method="PUT"><div class="method PUT">PUT</div><div class="ep-path">/collaborators/{collaboratorId}</div></div>
+                <div class="endpoint" data-path="/collaborators/{collaboratorId}" data-method="DELETE"><div class="method DELETE">DELETE</div><div class="ep-path">/collaborators/{collaboratorId}</div></div>
+                <div class="endpoint" data-path="/collaborators/user/{userId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/collaborators/user/{userId}</div></div>
             </div>
             <div class="sidebar-group">
                 <h3>Comentarios</h3>
@@ -380,8 +415,7 @@
             </div>
             <div class="sidebar-group">
                 <h3>Notificaciones</h3>
-                <div class="endpoint" data-path="/notifications/user/{userId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/notifications/user/:userId</div></div>
-                <div class="endpoint" data-path="/notifications/{notificationId}/read" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/notifications/:id/read</div></div>
+                <div class="endpoint" data-path="/notifications/{userId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/notifications/{userId}</div></div>
             </div>
             <div class="sidebar-group">
                 <h3>Usuarios</h3>
@@ -390,9 +424,9 @@
             </div>
             <div class="sidebar-group">
                 <h3>Versiones</h3>
-                <div class="endpoint" data-path="/files/{fileId}/versions" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/files/:fileId/versions</div></div>
-                <div class="endpoint" data-path="/files/{fileId}/versions/{versionId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/files/:fileId/versions/:id</div></div>
-                <div class="endpoint" data-path="/files/{fileId}/versions/{versionId}/revert" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/files/:fileId/versions/:id/revert</div></div>
+                <div class="endpoint" data-path="/versions" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/versions</div></div>
+                <div class="endpoint" data-path="/versions/file/{fileId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/versions/file/{fileId}</div></div>
+                <div class="endpoint" data-path="/versions/{versionId}/restore" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/versions/{versionId}/restore</div></div>
             </div>
         </aside>
 
@@ -423,6 +457,11 @@
                 <div class="pre-wrapper">
                     <label for="response">Respuesta</label>
                     <pre id="response">Esperando acción...</pre>
+                    <div id="responseTokenWrapper" class="token-response">
+                        <strong style="color: var(--text-secondary);">Token:</strong>
+                        <span id="responseTokenPreview" class="token-preview">N/A</span>
+                        <button id="copyResponseToken" class="btn btn-secondary btn-compact" disabled>Copiar</button>
+                    </div>
                 </div>
                 <div class="pre-wrapper">
                     <label for="log">Log</label>
