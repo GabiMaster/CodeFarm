@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>CodeFarm API Demo</title>
+    <link rel="icon" href="assets/images/adaptive-icon.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap"
+          rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #111827;
+            --bg-light: #1F2937;
+            --border-color: #374151;
+            --text-primary: #F9FAFB;
+            --text-secondary: #9CA3AF;
+            --primary-color: #3B82F6;
+            --primary-hover: #2563EB;
+            --green: #10B981;
+            --blue: #3B82F6;
+            --yellow: #F59E0B;
+            --red: #EF4444;
+            --purple: #8B5CF6;
+            --gray: #6B7280;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 14px;
+        }
+
+        .wrap {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: var(--bg-light);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-left: auto;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+
+        input[type=text] {
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            box-sizing: border-box;
+            font-family: var(--font-sans);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type=text]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--gray);
+        }
+        .btn-secondary:hover {
+            background: #4B5563;
+        }
+
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 380px;
+            background: var(--bg-light);
+            padding: 1.5rem;
+            box-sizing: border-box;
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+        }
+
+        .sidebar-group h3 {
+            margin: 0 0 1rem 0;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .sidebar-group {
+            margin-bottom: 2rem;
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            background: var(--bg-dark);
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        .endpoint:hover {
+            background: #2b3749;
+            transform: translateY(-1px);
+        }
+
+        .method {
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 0.375rem;
+            color: var(--text-primary);
+            font-size: 0.75rem;
+            font-family: var(--font-mono);
+            min-width: 45px;
+            text-align: center;
+        }
+
+        .method.GET { background: var(--green); }
+        .method.POST { background: var(--blue); }
+        .method.PUT { background: var(--yellow); color: #111827; }
+        .method.DELETE { background: var(--red); }
+        .method.PATCH { background: var(--purple); }
+        
+        .ep-path {
+            font-family: var(--font-mono);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .content {
+            flex: 1;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+        }
+
+        .panel {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+        
+        .panel-group {
+            display: grid;
+            grid-template-columns: 1fr 150px;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            box-sizing: border-box;
+            height: 250px;
+            resize: vertical;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+        }
+
+        .response-area {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 1.5rem;
+            flex: 1;
+            min-height: 200px;
+        }
+        
+        .pre-wrapper {
+             display: flex;
+             flex-direction: column;
+             min-height: 0;
+        }
+
+        pre {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 0.375rem;
+            color: #E5E7EB;
+            overflow: auto;
+            margin: 0;
+            font-family: var(--font-mono);
+            font-size: 0.875rem;
+            border: 1px solid var(--border-color);
+            flex: 1;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        @media (max-width: 1200px) {
+            .response-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .main {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 40vh;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .content {
+                padding: 1rem;
+            }
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .header-controls {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+         @media (max-width: 768px) {
+            .panel-group {
+                grid-template-columns: 1fr;
+            }
+            .panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <header>
+        <img src="assets/images/adaptive-icon.png" alt="CodeFarm Logo" style="height: 40px;">
+        <h1>CodeFarm API</h1>
+        <div class="header-controls">
+            <div class="input-group">
+                <label for="baseUrl">Base API URL</label>
+                <input id="baseUrl" type="text" placeholder="https://us-central1-.../api" size="40"/>
+            </div>
+            <div class="input-group">
+                <label for="authToken">Authorization</label>
+                <input id="authToken" type="text" placeholder="Bearer <token>" size="30"/>
+            </div>
+             <div class="btn-group">
+                <button id="saveToken" class="btn">Guardar</button>
+                <button id="clearToken" class="btn btn-secondary">Limpiar</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="main">
+        <aside class="sidebar">
+            <div class="sidebar-group">
+                <h3>Autenticación</h3>
+                <div class="endpoint" data-path="/auth/register" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/auth/register</div></div>
+                <div class="endpoint" data-path="/auth/login" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/auth/login</div></div>
+                <div class="endpoint" data-path="/auth/change-password" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/auth/change-password</div></div>
+            </div>
+            <div class="sidebar-group">
+                <h3>Proyectos</h3>
+                <div class="endpoint" data-path="/projects" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/projects</div></div>
+                <div class="endpoint" data-path="/projects/user/{userId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/projects/user/:userId</div></div>
+                <div class="endpoint" data-path="/projects/{projectId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/projects/:projectId</div></div>
+                <div class="endpoint" data-path="/projects/{projectId}" data-method="PUT"><div class="method PUT">PUT</div><div class="ep-path">/projects/:projectId</div></div>
+                <div class="endpoint" data-path="/projects/{projectId}" data-method="DELETE"><div class="method DELETE">DELETE</div><div class="ep-path">/projects/:projectId</div></div>
+            </div>
+            <div class="sidebar-group">
+                <h3>Archivos</h3>
+                 <div class="endpoint" data-path="/files" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/files</div></div>
+                <div class="endpoint" data-path="/files/project/{projectId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/files/project/:projectId</div></div>
+                <div class="endpoint" data-path="/files/{fileId}" data-method="PUT"><div class="method PUT">PUT</div><div class="ep-path">/files/:fileId</div></div>
+                <div class="endpoint" data-path="/files/{fileId}" data-method="DELETE"><div class="method DELETE">DELETE</div><div class="ep-path">/files/:fileId</div></div>
+            </div>
+            <div class="sidebar-group">
+                <h3>Ejecuciones</h3>
+                <div class="endpoint" data-path="/executions" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/executions</div></div>
+                <div class="endpoint" data-path="/executions/{executionId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/executions/:executionId</div></div>
+                <div class="endpoint" data-path="/executions/project/{projectId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/executions/project/:projectId</div></div>
+            </div>
+            <div class="sidebar-group">
+                <h3>Colaboradores</h3>
+                <div class="endpoint" data-path="/projects/{projectId}/collaborators" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/projects/:id/collaborators</div></div>
+                <div class="endpoint" data-path="/projects/{projectId}/collaborators" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/projects/:id/collaborators</div></div>
+                <div class="endpoint" data-path="/projects/{projectId}/collaborators/{userId}" data-method="DELETE"><div class="method DELETE">DELETE</div><div class="ep-path">/projects/:id/collaborators/:id</div></div>
+            </div>
+            <div class="sidebar-group">
+                <h3>Comentarios</h3>
+                <div class="endpoint" data-path="/comments" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/comments</div></div>
+                <div class="endpoint" data-path="/comments/file/{fileId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/comments/file/:fileId</div></div>
+                <div class="endpoint" data-path="/comments/{commentId}" data-method="PUT"><div class="method PUT">PUT</div><div class="ep-path">/comments/:commentId</div></div>
+                <div class="endpoint" data-path="/comments/{commentId}" data-method="DELETE"><div class="method DELETE">DELETE</div><div class="ep-path">/comments/:commentId</div></div>
+            </div>
+            <div class="sidebar-group">
+                <h3>Notificaciones</h3>
+                <div class="endpoint" data-path="/notifications/user/{userId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/notifications/user/:userId</div></div>
+                <div class="endpoint" data-path="/notifications/{notificationId}/read" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/notifications/:id/read</div></div>
+            </div>
+            <div class="sidebar-group">
+                <h3>Usuarios</h3>
+                <div class="endpoint" data-path="/users/{userId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/users/:userId</div></div>
+                <div class="endpoint" data-path="/users/{userId}" data-method="PUT"><div class="method PUT">PUT</div><div class="ep-path">/users/:userId</div></div>
+            </div>
+            <div class="sidebar-group">
+                <h3>Versiones</h3>
+                <div class="endpoint" data-path="/files/{fileId}/versions" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/files/:fileId/versions</div></div>
+                <div class="endpoint" data-path="/files/{fileId}/versions/{versionId}" data-method="GET"><div class="method GET">GET</div><div class="ep-path">/files/:fileId/versions/:id</div></div>
+                <div class="endpoint" data-path="/files/{fileId}/versions/{versionId}/revert" data-method="POST"><div class="method POST">POST</div><div class="ep-path">/files/:fileId/versions/:id/revert</div></div>
+            </div>
+        </aside>
+
+        <section class="content">
+            <div class="panel">
+                <div class="panel-group">
+                    <div class="form-group">
+                        <label for="path">Path (rellene parámetros entre { } si aplica)</label>
+                        <input id="path" type="text" placeholder="/projects/{projectId}"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="method">Método</label>
+                        <input id="method" type="text" value="GET"/>
+                    </div>
+                </div>
+                 <div class="btn-group">
+                    <button id="sendBtn" class="btn">Enviar</button>
+                    <button id="previewBtn" class="btn btn-secondary">Previsualizar</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="body">JSON Body (si aplica)</label>
+                <textarea id="body" placeholder='{"key":"value"}'></textarea>
+            </div>
+
+            <div class="response-area">
+                <div class="pre-wrapper">
+                    <label for="response">Respuesta</label>
+                    <pre id="response">Esperando acción...</pre>
+                </div>
+                <div class="pre-wrapper">
+                    <label for="log">Log</label>
+                    <pre id="log">Registros de la demo</pre>
+                </div>
+            </div>
+
+            <div class="pre-wrapper">
+                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <label for="outgoing">Payload Enviado</label>
+                    <button id="copyPayload" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Copiar</button>
+                </div>
+                <pre id="outgoing">Sin payload aún</pre>
+            </div>
+        </section>
+    </div>
+</div>
+
+<script src="api-demo.js"></script>
+</body>
+</html>
