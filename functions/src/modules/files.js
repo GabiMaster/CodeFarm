@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middlewares/auth.middleware');
 const createFileService = require('../services/files/create-file.service');
 const getFilesByProjectService = require('../services/files/get-files-by-project.service');
 const updateFileService = require('../services/files/update-file.service');
 const deleteFileService = require('../services/files/delete-file.service');
 const { sendSuccess, sendError } = require('../utils/response');
 const httpStatus = require('../utils/httpStatusCode');
+
+router.use(authMiddleware);
 
 // POST /files
 router.post('/', async (req, res) => {

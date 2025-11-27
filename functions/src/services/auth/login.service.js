@@ -1,6 +1,8 @@
 const Joi = require('joi');
+const axios = require('axios');
 const authRepository = require('../../repositories/auth.repository');
 const httpStatus = require('../../utils/httpStatusCode');
+const { WEB_API_KEY } = require('../../config/environment');
 
 // Esquema de validación con Joi
 const loginSchema = Joi.object({
@@ -23,34 +25,66 @@ const loginService = async (data) => {
     throw err;
   }
 
-  // 2. Verificar que el usuario existe en Firebase Auth
-  const userRecord = await authRepository.getUserByEmail(value.email);
-  
-  if (!userRecord) {
-    const err = new Error('Credenciales inválidas');
-    err.statusCode = httpStatus.UNAUTHORIZED;
+  try {
+    // 2. Validar email y contraseña usando Firebase Auth REST API
+    const response = await axios.post(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${WEB_API_KEY}`,
+      {
+        email: value.email,
+        password: value.password,
+        returnSecureToken: true
+      }
+    );
+
+    const { localId, idToken } = response.data;
+
+    // 3. Obtener datos adicionales del usuario desde Realtime Database
+    const userData = await authRepository.getUserData(localId);
+
+    if (!userData) {
+      const err = new Error('Usuario no encontrado en la base de datos');
+      err.statusCode = httpStatus.NOT_FOUND;
+      throw err;
+    }
+
+    // 4. Retornar usuario autenticado
+    return {
+      uid: localId,
+      email: value.email,
+      displayName: userData.displayName,
+      username: userData.username,
+      token: idToken
+    };
+
+  } catch (error) {
+    // Manejar errores específicos de Firebase Auth
+    if (
+      error.response?.data?.error?.message === 'INVALID_PASSWORD' || 
+      error.response?.data?.error?.message === 'INVALID_LOGIN_CREDENTIALS' ||
+      error.response?.data?.error?.message === 'EMAIL_NOT_FOUND'
+    ) {
+      const err = new Error('Correo o contraseña incorrectos');
+      err.statusCode = httpStatus.UNAUTHORIZED;
+      throw err;
+    }
+
+    if (error.response?.data?.error?.message === 'USER_DISABLED') {
+      const err = new Error('Usuario deshabilitado');
+      err.statusCode = httpStatus.FORBIDDEN;
+      throw err;
+    }
+
+    // Si ya tiene statusCode, es un error que lanzamos nosotros
+    if (error.statusCode) {
+      throw error;
+    }
+
+    // Error genérico
+    console.error('Error en loginService:', error);
+    const err = new Error('Error al iniciar sesión');
+    err.statusCode = httpStatus.INTERNAL_SERVER_ERROR;
     throw err;
   }
-
-  // 3. Obtener datos adicionales del usuario desde Realtime Database
-  const userData = await authRepository.getUserData(userRecord.uid);
-
-  if (!userData) {
-    const err = new Error('Usuario no encontrado en la base de datos');
-    err.statusCode = httpStatus.NOT_FOUND;
-    throw err;
-  }
-
-  // 4. Generar custom token para autenticación en el cliente
-  const customToken = await authRepository.createCustomToken(userRecord.uid);
-
-  return {
-    uid: userRecord.uid,
-    email: userRecord.email,
-    displayName: userData.displayName,
-    username: userData.username,
-    token: customToken
-  };
 };
 
 module.exports = loginService;

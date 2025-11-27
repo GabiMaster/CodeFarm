@@ -38,40 +38,45 @@ const RegisterPage = () => {
   };
 
   // Lógica de registro
-  const handleRegister = async () => {
-    if (!nombre || !apellido || !telefono || !email || !password || !confirmPassword) {
-      setAlert({visible: true, type: 'error', message: 'Por favor completa todos los campos.'});
-      return;
-    }
-    if (password !== confirmPassword) {
-      setAlert({visible: true, type: 'error', message: 'Las contraseñas no coinciden.'});
-      return;
-    }
-    // Obtener usuarios existentes
-    const usersRaw = await AsyncStorage.getItem('users');
-    const users = usersRaw ? JSON.parse(usersRaw) : [];
-    if (users.find((u: any) => u.email === email)) {
-      setAlert({visible: true, type: 'error', message: 'Ya existe una cuenta con ese correo.'});
-      return;
-    }
-    const newUser = {
-      nombre,
-      apellido,
-      telefono,
-      email,
-      password,
-      username: nombre,
-    };
-    users.push(newUser);
-    await AsyncStorage.setItem('users', JSON.stringify(users));
-    await AsyncStorage.setItem('user', JSON.stringify(newUser));
-    await signIn(JSON.stringify(newUser));
-    setAlert({visible: true, type: 'success', message: '¡Registro exitoso!'});
+const handleRegister = async () => {
+  if (!displayName || !username || !email || !password || !confirmPassword) {
+    setAlert({
+      visible: true,
+      type: 'error',
+      message: 'Por favor completa todos los campos.',
+    });
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    setAlert({
+      visible: true,
+      type: 'error',
+      message: 'Las contraseñas no coinciden.',
+    });
+    return;
+  }
+
+  try {
+    await register({ displayName, username, email, password });
+    setAlert({
+      visible: true,
+      type: 'success',
+      message: '¡Registro exitoso!',
+    });
+    
     setTimeout(() => {
-      setAlert(a => ({...a, visible: false}));
+      setAlert((a) => ({ ...a, visible: false }));
       router.replace('/(tabs)');
-    }, 1500);
-  };
+    }, 1200);
+  } catch (error: any) {
+    setAlert({
+      visible: true,
+      type: 'error',
+      message: error.message || 'Error al registrar usuario',
+    });
+  }
+};
 
   return (
     <SafeAreaView style={styles.container}>

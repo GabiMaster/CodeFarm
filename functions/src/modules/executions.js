@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middlewares/auth.middleware');
 
 // Importar services
 const executeCodeService = require('../services/executions/execute-code.service');
 const getExecutionService = require('../services/executions/get-executions.service');
 const getExecutionsByProjectService = require('../services/executions/get-executions-by-project.service');
+
+router.use(authMiddleware);
 
 // POST /executions - Ejecutar código
 router.post('/', async (req, res) => {

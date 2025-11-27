@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const authMiddleware = require('../middlewares/auth.middleware');
 
 // Importar services
 const createVersionService = require('../services/versions/create-versions.service');
 const getVersionsByFileService = require('../services/versions/get-versions-by-file.service');
 const restoreVersionService = require('../services/versions/restore-version.service');
+
+router.use(authMiddleware);
 
 // POST /versions - Crear versión de archivo
 router.post('/', async (req, res) => {

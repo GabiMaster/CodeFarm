@@ -13,6 +13,7 @@ console.log('nodeEnv:', nodeEnv);
 
 let environmentFile;
 switch (nodeEnv) {
+  case 'production':
   case 'prod':
     environmentFile = '.env';
     break;
@@ -40,6 +41,7 @@ if (result.error) {
 
 module.exports = {
   NODE_ENV: nodeEnv,
+  WEB_API_KEY: process.env.WEB_API_KEY,
   URL_APP: process.env.URL_APP,
   CREDENTIALS_FILE_NAME: process.env.CREDENTIALS_FILE_NAME,
   RTDB_FIREBASE_DATABASE_URL: process.env.RTDB_FIREBASE_DATABASE_URL,
